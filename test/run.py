@@ -1,6 +1,8 @@
 import os
 import subprocess
 
+# ------------------------------------------------------------------------------
+
 def main():
     root_folder = os.path.dirname(os.path.abspath(__file__))
     build_folder = os.path.join(root_folder, 'build')
@@ -27,32 +29,38 @@ def main():
     # run
     run(stringify_path(executable))
 
+# ------------------------------------------------------------------------------
 
 def run(cmd: list[str]) -> None:
-    
     command = None
-
     if isinstance(cmd, str):
         command = cmd
     elif isinstance(cmd, list) and all(isinstance(item, str) for item in cmd):
         command = ' '.join(cmd)
     else:
         raise ValueError("Argument type invalid, must be 'str' or 'list[str]'")
-
+    
+    START = '-----START-----'
+    END = '-----END-----'
+    
     print()
     print(f"Run: {command}")
-    print(f"-----START-----")
     
+    print(START)
     try:
         completed_process = subprocess.run(command, shell=True, check=True)
-        print(f"process finished with return code {completed_process.returncode}")
+        print(END)
+        print(f"Return code: {completed_process.returncode}")
     except subprocess.CalledProcessError as cpe:
+        print(END)
         print(cpe)
     except Exception as e:
-        print(f"generic error: {e}")
+        print(END)
+        print(f"Generic error: {e}")
 
-    print(f"-----END-----")
     print()
+
+# ------------------------------------------------------------------------------
 
 def clean_directory(path: str) -> None:
     if os.path.exists(path):
@@ -65,8 +73,11 @@ def clean_directory(path: str) -> None:
                 os.rmdir(dir_path)
         os.rmdir(path)
     os.makedirs(path, exist_ok=True)
-    
+
+
 def stringify_path(path: str) -> str:
-    return f'"{path}"'    
+    return f'"{path}"'
+
+# ------------------------------------------------------------------------------
 
 main()
