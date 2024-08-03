@@ -11,11 +11,35 @@ It provides a straightforward API for creating, destroying, and synchronizing th
 ## Usage example
 
 ```c
+// ------------------------------------------------------
+// Standard library dependencies
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
+// Simple sleep function for simulation purposes
+#ifdef _WIN32
+// Windows implementation
+#include <windows.h>
+void sleep_ms(int milliseconds) {
+    Sleep(milliseconds);
+}
+#else
+// Unix implementation
+#include <unistd.h>
+void sleep_ms(int milliseconds) {
+    usleep(milliseconds * 1000);
+}
+#endif
+
+// ------------------------------------------------------
+// Non-standard libraries
+
 #include "STHR.h"
+
+// ------------------------------------------------------
+// Shared data
 
 #define BUFFER_SIZE 10
 
@@ -24,21 +48,12 @@ int buffer[BUFFER_SIZE];
 int buffer_index = 0;
 STHR_mutex_t buffer_mutex;
 
-// Platform-specific sleep function
-#ifdef _WIN32
-#include <windows.h>
-void sleep_ms(int milliseconds) {
-    Sleep(milliseconds); // Windows function
-}
-#else
-void sleep_ms(int milliseconds) {
-    usleep(milliseconds * 1000); // POSIX function
-}
-#endif
-
+// ------------------------------------------------------
 // Producer thread function (never ends)
+
 void producer(void) {
     while (true) {
+        sleep_ms(1000); // Simulate time taken to produce an item
         STHR_mutex_lock(&buffer_mutex);
 
         // Produce an item
@@ -50,11 +65,12 @@ void producer(void) {
         }
 
         STHR_mutex_unlock(&buffer_mutex);
-        sleep_ms(1000); // Simulate time taken to produce an item
     }
 }
 
+// ------------------------------------------------------
 // Consumer thread function (ends after some time)
+
 void consumer(void) {
     for (int i = 0; i < 20; ++i) {
         STHR_mutex_lock(&buffer_mutex);
@@ -72,6 +88,9 @@ void consumer(void) {
     }
 }
 
+// ------------------------------------------------------
+// Main
+
 int main() {
     STHR_thread_t producer_thread;
     STHR_thread_t consumer_thread;
@@ -85,27 +104,23 @@ int main() {
     // Create the producer and consumer threads
     if (STHR_thread_create(&producer_thread, producer) != STHR_OK) {
         fprintf(stderr, "Failed to create producer thread\n");
-        STHR_mutex_destroy(&buffer_mutex);
         return 1;
     }
     if (STHR_thread_create(&consumer_thread, consumer) != STHR_OK) {
         fprintf(stderr, "Failed to create consumer thread\n");
-        STHR_thread_destroy(&producer_thread);
-        STHR_mutex_destroy(&buffer_mutex);
         return 1;
     }
 
     // Wait for the consumer thread to finish
     if (STHR_thread_wait_end(&consumer_thread) != STHR_OK) {
         fprintf(stderr, "Failed to wait for consumer thread\n");
-        STHR_thread_destroy(&producer_thread);
-        STHR_mutex_destroy(&buffer_mutex);
         return 1;
     }
 
     // Destroy the producer thread
     if (STHR_thread_destroy(&producer_thread) != STHR_OK) {
         fprintf(stderr, "Failed to destroy producer thread\n");
+        return 1;
     }
 
     // Destroy the mutex
