@@ -18,7 +18,8 @@ def main():
     build_system = '"Unix Makefiles"'
     if os.name == 'nt':
         build_system = '"MinGW Makefiles"'
-    run(['cmake', '-S', root_folder_str, '-B', build_folder_str, '-G', build_system])
+    build_type = "-DCMAKE_BUILD_TYPE=Debug"
+    run(['cmake', '-S', root_folder_str, '-B', build_folder_str, '-G', build_system, build_type])
 
     # build
     run(['cmake', '--build', build_folder_str])
