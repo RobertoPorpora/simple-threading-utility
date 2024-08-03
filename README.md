@@ -18,21 +18,6 @@ It provides a straightforward API for creating, destroying, and synchronizing th
 #include <stdlib.h>
 #include <stdbool.h>
 
-// Simple sleep function for simulation purposes
-#ifdef _WIN32
-// Windows implementation
-#include <windows.h>
-void sleep_ms(int milliseconds) {
-    Sleep(milliseconds);
-}
-#else
-// Unix implementation
-#include <unistd.h>
-void sleep_ms(int milliseconds) {
-    usleep(milliseconds * 1000);
-}
-#endif
-
 // ------------------------------------------------------
 // Non-standard libraries
 
@@ -53,7 +38,7 @@ STHR_mutex_t buffer_mutex;
 
 void producer(void) {
     while (true) {
-        sleep_ms(1000); // Simulate time taken to produce an item
+        STHR_sleep_ms(1000); // Simulate time taken to produce an item
         STHR_mutex_lock(&buffer_mutex);
 
         // Produce an item
@@ -84,7 +69,7 @@ void consumer(void) {
         }
 
         STHR_mutex_unlock(&buffer_mutex);
-        sleep_ms(2000); // Simulate time taken to consume an item
+        STHR_sleep_ms(2000); // Simulate time taken to consume an item
     }
 }
 

@@ -1,6 +1,28 @@
 #include "STHR.h"
 
 /**
+ * SLEEP
+ */
+
+#ifdef _WIN32
+
+void STHR_sleep_ms(uint32_t milliseconds)
+{
+    Sleep(milliseconds);
+}
+
+#else
+
+#include <unistd.h>
+
+void STHR_sleep_ms(uint32_t milliseconds)
+{
+    usleep(milliseconds * 1000);
+}
+
+#endif
+
+/**
  * THREADS
  */
 

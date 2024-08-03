@@ -62,26 +62,6 @@ void assert_array_equal(int expected[], int actual[], size_t num_elements)
         test_pass_routine();
 }
 
-#ifdef _WIN32
-
-#include <windows.h>
-
-void sleep_millis(int millis)
-{
-    Sleep(millis);
-}
-
-#else
-
-#include <unistd.h>
-
-void sleep_millis(int millis)
-{
-    usleep(millis * 1000);
-}
-
-#endif
-
 STHR_function_t thread_1_function;
 STHR_function_t thread_2_function;
 
@@ -140,7 +120,7 @@ int main(void)
 
 void thread_1_function(void)
 {
-    sleep_millis(500);
+    STHR_sleep_ms(500);
 
     print_level_open("Thread 1 mutex lock");
     assert_result_ok(STHR_mutex_lock(&mutex));
@@ -150,28 +130,28 @@ void thread_1_function(void)
     print_level_open("Thread 1 mutex unlock");
     assert_result_ok(STHR_mutex_unlock(&mutex));
 
-    sleep_millis(1000);
+    STHR_sleep_ms(1000);
 
     print_level_open("Thread 1 mutex lock");
     assert_result_ok(STHR_mutex_lock(&mutex));
 
     array[array_index++] = 1;
 
-    sleep_millis(1000);
+    STHR_sleep_ms(1000);
 
     array[array_index++] = 1;
 
     print_level_open("Thread 1 mutex unlock");
     assert_result_ok(STHR_mutex_unlock(&mutex));
 
-    sleep_millis(500);
+    STHR_sleep_ms(500);
 }
 
 void thread_2_function(void)
 {
     while (true)
     {
-        sleep_millis(1000);
+        STHR_sleep_ms(1000);
 
         print_level_open("Thread 2 mutex lock");
         assert_result_ok(STHR_mutex_lock(&mutex));

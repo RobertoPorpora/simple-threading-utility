@@ -3,8 +3,9 @@
 /**
  * STHR is for Simple Threading Utility
  */
- 
+
 #include <stdlib.h>
+#include <stdint.h>
 
 // types
 typedef enum
@@ -28,6 +29,9 @@ typedef pthread_t STHR_thread_t;
 typedef pthread_mutex_t STHR_mutex_t;
 
 #endif
+
+// sleep
+void STHR_sleep_ms(uint32_t milliseconds);
 
 // threads
 STHR_result_t STHR_thread_create(STHR_thread_t *thread, STHR_function_t *function);
